@@ -13,7 +13,7 @@ else:
 
 
 def main():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings" % __package__)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"{__package__}.settings")
     execute_from_command_line(sys.argv)
 
 

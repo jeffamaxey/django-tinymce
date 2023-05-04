@@ -14,9 +14,7 @@ class HTMLField(models.TextField):
     """
 
     def formfield(self, **kwargs):
-        defaults = {"widget": tinymce_widgets.TinyMCE}
-        defaults.update(kwargs)
-
+        defaults = {"widget": tinymce_widgets.TinyMCE} | kwargs
         # As an ugly hack, we override the admin widget
         if defaults["widget"] == admin_widgets.AdminTextareaWidget:
             defaults["widget"] = tinymce_widgets.AdminTinyMCE

@@ -151,7 +151,6 @@ def match_language_with_tinymce(lang):
 def get_language_config(content_language):
     content_language = content_language[:2]
 
-    config = {}
     lang_names = OrderedDict()
     for lang, name in settings.LANGUAGES:
         if lang[:2] not in lang_names:
@@ -159,19 +158,15 @@ def get_language_config(content_language):
         lang_names[lang[:2]].append(_(name))
     sp_langs = []
     for lang, names in lang_names.items():
-        if lang == content_language:
-            default = "+"
-        else:
-            default = ""
+        default = "+" if lang == content_language else ""
         sp_langs.append(f'{default}{" / ".join(names)}={lang}')
 
-    config["spellchecker_languages"] = ",".join(sp_langs)
-
-    if content_language in settings.LANGUAGES_BIDI:
-        config["directionality"] = "rtl"
-    else:
-        config["directionality"] = "ltr"
-
+    config = {
+        "spellchecker_languages": ",".join(sp_langs),
+        "directionality": "rtl"
+        if content_language in settings.LANGUAGES_BIDI
+        else "ltr",
+    }
     if tinymce.settings.USE_SPELLCHECKER:
         config["spellchecker_rpc_url"] = reverse("tinymce-spellcheck")
 

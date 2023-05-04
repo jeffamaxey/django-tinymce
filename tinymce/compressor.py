@@ -43,9 +43,7 @@ def get_file_contents(filename, source=False):
 
 
 def split_commas(str):
-    if str == "":
-        return []
-    return str.split(",")
+    return [] if str == "" else str.split(",")
 
 
 def gzip_compressor(request):
@@ -104,33 +102,28 @@ def gzip_compressor(request):
     files = ["tinymce"]
 
     # Add core languages
-    for lang in languages:
-        files.append(f"langs/{lang}")
-
+    files.extend(f"langs/{lang}" for lang in languages)
     # Add plugins
     for plugin in plugins:
         files.append(f"plugins/{plugin}/plugin")
 
-        for lang in languages:
-            files.append(f"plugins/{plugin}/langs/{lang}")
-
+        files.extend(f"plugins/{plugin}/langs/{lang}" for lang in languages)
     # Add themes
     for theme in themes:
         files.append(f"themes/{theme}/theme")
 
-        for lang in languages:
-            files.append(f"themes/{theme}/langs/{lang}")
-
-    for f in files:
-        # Check for unsafe characters
-        if not safe_filename_re.match(f):
-            continue
-        content.append(get_file_contents(f, source=source))
-
+        files.extend(f"themes/{theme}/langs/{lang}" for lang in languages)
+    content.extend(
+        get_file_contents(f, source=source)
+        for f in files
+        if safe_filename_re.match(f)
+    )
     # Restore loading functions
     content.append(
-        'tinymce.each("{}".split(",")'.format(",".join(files))
-        + ', function(f){tinymce.ScriptLoader.markDone(tinyMCE.baseURL+"/"+f+".js");});'
+        (
+            f'tinymce.each("{",".join(files)}".split(",")'
+            + ', function(f){tinymce.ScriptLoader.markDone(tinyMCE.baseURL+"/"+f+".js");});'
+        )
     )
 
     # Compress
